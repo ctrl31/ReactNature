@@ -1,33 +1,36 @@
-const express = require('express');
+import express from 'express';
+import dotenv from 'dotenv';
+import familiaRoutes from './routes/familiaRoutes.js';
+import { MongoClient, ServerApiVersion } from 'mongodb';
+
+dotenv.config(); // si usas variables de entorno desde un .env
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware para manejar JSON
 app.use(express.json());
-//Ruta Familia 
-const familiaRoutes = require('./routes/familiaRoutes.js');
-app.use('/api',familiaRoutes);
+
+// Rutas
+app.use('/api', familiaRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
   res.send('¡Hola desde el servidor!');
 });
 
-// Ruta de API de ejemplo
-app.get('/api1', (req, res) => {
+app.get('/api', (req, res) => {
   res.json({ message: 'Esta es una respuesta desde el backend' });
 });
 
-// Escuchar en el puerto
+// Escuchar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+// MongoDB Atlas
 const uri = "mongodb+srv://admin:admin123@clusterreact.rajhauw.mongodb.net/familia?retryWrites=true&w=majority";
 
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -38,14 +41,14 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
-    console.log("Conexion exitosa con MongoDB!");
+    console.log("✅ Conexión exitosa con MongoDB!");
+  } catch (error) {
+    console.error("❌ Error al conectar con MongoDB:", error.message);
   } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    await client.close(); // o coméntalo si quieres mantener la conexión abierta
   }
 }
+
 run().catch(console.dir);
